@@ -15,7 +15,7 @@ const tokenSing = (user) => {
     }
 
     return new Promise((resolve, reject) => {
-        jwt.sign(payload, jwt_secret, { expiresIn: '1h' },
+        jwt.sign(payload, jwt_secret, { expiresIn: '8h' },
             (err, token) => {
                 if (err) {
                     reject(err)

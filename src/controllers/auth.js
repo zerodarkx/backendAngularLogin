@@ -2,7 +2,7 @@ const { httpError } = require('../utils/handleError');
 const { tokenSing, verificarToken } = require('../utils/handleJWT');
 const { encriptarPassword, compararPassword } = require('../utils/handlePassword');
 const { matchedData } = require('express-validator');
-const database = require('../config/database');
+const { connMysql } = require('../config/database');
 
 const validarToken = async (req, res) => {
 
@@ -11,9 +11,9 @@ const validarToken = async (req, res) => {
     try {
 
         const { id } = verificarToken(token, process.env.SECRET_JWT_SEED);
-        
 
-        const db = await database();
+
+        const db = await connMysql();
         const sql = `SELECT * FROM usuarios WHERE id_usuario = '${id}'`
         const [rows] = await db.query(sql);
         const user = rows[0];
@@ -25,7 +25,6 @@ const validarToken = async (req, res) => {
         });
 
     } catch (error) {
-        console.log(error);
         return httpError(res, "ERROR_LOGIN_USER", 500);
     }
 
@@ -35,11 +34,11 @@ const validarToken = async (req, res) => {
 const loginUsuario = async (req, res) => {
 
     try {
-        
+
         const body = matchedData(req);
         const { user, password } = body;
 
-        const db = await database();
+        const db = await connMysql();
 
         const sql = `SELECT * FROM usuarios WHERE email = '${user}'`
         const [rows] = await db.query(sql);
@@ -60,7 +59,7 @@ const loginUsuario = async (req, res) => {
         const data = {
             ok: true,
             token: await tokenSing(users),
-            users,
+            user: users,
             msg: 'usuario logeado'
         }
 
@@ -78,7 +77,7 @@ const nuevoUsuario = async (req, res) => {
         const body = matchedData(req);
         const { name, email, password } = body;
 
-        const db = await database();
+        const db = await connMysql();
 
         const sql = `SELECT * FROM usuarios WHERE email = '${email}'`;
         const [rows] = await db.query(sql);
